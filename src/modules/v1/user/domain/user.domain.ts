@@ -9,6 +9,13 @@ export class UserDomain {
 
   @ApiProperty({
     type: String,
+    example: 'username'
+  })
+  @Expose()
+  username: string;
+
+  @ApiProperty({
+    type: String,
     example: 'Lq5kA@example.com'
   })
   @Expose()
@@ -25,7 +32,7 @@ export class UserDomain {
   isActive: boolean;
 
   @ApiProperty()
-  lastLogin: Date;
+  lastLogin: Date | null;
 
   @ApiProperty()
   rememberToken: string | null;

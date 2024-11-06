@@ -9,9 +9,9 @@ export class LoginResponseDto {
   @ApiProperty()
   refreshToken: string;
 
-  // @ApiProperty()
-  // @Expose()
-  // tokenExpires: number;
+  @ApiProperty()
+  @Expose()
+  tokenExpires: number;
 
   @ApiProperty({
     type: () => UserDomain,

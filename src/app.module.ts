@@ -7,10 +7,12 @@ import { DatabaseConfig } from './config/database/database-config.type';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './config/database/typeorm-config.service';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { AuthModule } from './modules/v1/auth/auth.module';
-import { UserModule } from './modules/v1/user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
+import authConfig from './config/auth/auth-config';
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 
 // <database-block>
@@ -22,6 +24,28 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
 });
 // </database-block>
 
+const loadModulesV1FromDirectory = (directory: string): any[] => {
+  const importModules = [];
+  const files = fs.readdirSync(directory);
+
+  for (const file of files) {
+    const modules = fs.readdirSync(directory + '/' + file);
+    for (const module of modules) {            
+      if (module.endsWith('.module.js')) {
+        const modulePath = path.join(directory + '/' + file, module);
+        const mod = require(modulePath);                
+        importModules.push(mod[Object.keys(mod)[0]]);
+      }
+    }
+  }
+
+  return importModules;
+}
+
+const modulesV1Directory = path.join(__dirname, 'modules/v1');
+const importedModulesV1 = loadModulesV1FromDirectory(modulesV1Directory);
+
+
 @Module({
   controllers: [AppController],
   imports: [
@@ -29,14 +53,13 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
       isGlobal: true,
       load: [
         databaseConfig,
-        // authConfig,
+        authConfig,
         appConfig,
       ],
       envFilePath: ['.env'],
     }),
     infrastructureDatabaseModule,
-    AuthModule,
-    UserModule,
+    ...importedModulesV1,
   ],
   providers: [
     {

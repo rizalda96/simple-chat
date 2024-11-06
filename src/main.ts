@@ -39,16 +39,17 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter, configService));
 
   const reflector = app.get(Reflector);
-  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));  
 
-
-  const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('API Documentation')
-    .setVersion('1.0')
-    .build();
-  const document = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('API')
+      .setDescription('API Documentation')
+      .setVersion('1.0')
+      .build();
+    const document = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api-docs', app, document);
+  }
 
 
   await app.listen(configService.getOrThrow('app.port', { infer: true }));

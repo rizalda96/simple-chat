@@ -15,6 +15,15 @@ export class UserEntity {
 
   @Column({
     type: 'varchar',
+    name: 'username',
+    unique: true,
+    nullable: false,
+    length: 50
+  })
+  username: string;
+
+  @Column({
+    type: 'varchar',
     name: 'email',
     unique: true,
     nullable: false,
@@ -36,7 +45,6 @@ export class UserEntity {
   })
   lastLogin: Date;
 
-  @Index()
   @Column({
     type: 'boolean',
     name: 'is_active',
@@ -57,7 +65,7 @@ export class UserEntity {
     type: 'timestamp',
     name: 'created_at',
     nullable: false,
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => Date.now()
   })
   createdAt: Date;
 
@@ -66,7 +74,7 @@ export class UserEntity {
     type: 'timestamp',
     name: 'updated_at',
     nullable: false,
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => Date.now()
   })
   updatedAt: Date;
 }

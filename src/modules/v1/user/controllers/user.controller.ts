@@ -8,8 +8,8 @@ import { UserEntity } from '../entities/user.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get(':email')
-  findOne(@Param('email') id: string) : Promise<UserEntity> {
-    return this.userService.findOneUser(id);
-  }
+  // @Get(':email')
+  // findOne(@Param('email') id: string) : Promise<UserEntity> {
+  //   return this.userService.findOneUser(id);
+  // }
 }

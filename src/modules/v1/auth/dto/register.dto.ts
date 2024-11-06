@@ -1,12 +1,16 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 import { lowerCaseTransformer } from "src/utils/lower-case.transformer";
 
-export class CreateUserDto {
+export class RegisterDto {
+  @ApiProperty({ example: 'kamilmysliwiec' })
   @Transform(lowerCaseTransformer)
   @IsNotEmpty()
+  @IsString()
   username: string;
 
+  @ApiProperty({ example: 'Lq5kA@example.com' })
   @Transform(lowerCaseTransformer)
   @IsNotEmpty()
   @IsEmail()
@@ -14,14 +18,6 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @MinLength(8)
+  @ApiProperty({ example: '12345678' })
   password: string;
-
-  @IsOptional()
-  isActive?: boolean;
-
-  @IsOptional()
-  rememberToken?: string | null;
-
-  @IsOptional()
-  lastLogin?: Date | null;
 }
