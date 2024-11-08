@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
+import { ProfileDomain } from "./profile.domain";
+import { ProfileEntity } from "../entities/profile.entity";
 
 export class UserDomain {
   @ApiProperty({
@@ -32,8 +34,11 @@ export class UserDomain {
   isActive: boolean;
 
   @ApiProperty()
-  lastLogin: Date | null;
+  lastLogin?: Date | null;
 
   @ApiProperty()
-  rememberToken: string | null;
+  rememberToken?: string | null;
+
+  @ApiProperty()
+  profile?: ProfileDomain;
 }

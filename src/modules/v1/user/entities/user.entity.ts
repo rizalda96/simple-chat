@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ProfileEntity } from "./profile.entity";
 
 @Entity('users')
 export class UserEntity {
@@ -65,7 +66,7 @@ export class UserEntity {
     type: 'timestamp',
     name: 'created_at',
     nullable: false,
-    default: () => Date.now()
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
@@ -74,7 +75,10 @@ export class UserEntity {
     type: 'timestamp',
     name: 'updated_at',
     nullable: false,
-    default: () => Date.now()
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @OneToOne(() => ProfileEntity, (profile) => profile.user)
+  profile: ProfileEntity;
 }

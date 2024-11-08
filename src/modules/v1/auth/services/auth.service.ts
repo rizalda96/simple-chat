@@ -9,6 +9,7 @@ import { UserEntity } from '../../user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { AllConfigType } from 'src/config/config.type';
 import { ConfigService } from '@nestjs/config';
+import { JwtRefreshPayloadType } from '../strategies/types/jwt-refresh-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -33,12 +34,11 @@ export class AuthService {
       user.password,
     );
     if (!isValidPassword) throw new UnprocessableEntityException('Incorrect password');
-
+    
     await this.updateLastLogin(user);
-
     const { token, refreshToken, tokenExpires } = await this.getTokensData({ id: user.id, email: user.email, username: user.username });
     const { password, createdAt, updatedAt, ...result } = user;
-
+    
     return {
       token,
       refreshToken,
@@ -54,14 +54,40 @@ export class AuthService {
     await this.userService.updateUser(user.id, user);
   }
 
-  async register(request: RegisterDto) : Promise<RegisterDto> {
+  async register(request: RegisterDto) : Promise<LoginResponseDto> {
     // return await this.userService.createUser(request);
     const user = await this.userService.createUser({
       ...request,
       isActive: true,
     });
 
-    return request;
+    await this.updateLastLogin(user);
+    const { token, refreshToken, tokenExpires } = await this.getTokensData({ id: user.id, email: user.email, username: user.username });
+    const { password, createdAt, updatedAt, ...result } = user;
+
+    return {
+      token,
+      refreshToken,
+      tokenExpires,
+      user: result,
+    };
+  }
+
+  async refreshToken(data: Pick<JwtRefreshPayloadType, 'email' | 'username'>) : Promise<Omit<LoginResponseDto, 'user'>> {
+    const { email, username } = data;
+
+    if (!email || !username) throw new UnauthorizedException();
+
+    const user = await this.userService.findOneUser('email', email);
+    if (!user) throw new UnauthorizedException();
+    
+    const { token, refreshToken, tokenExpires } = await this.getTokensData({ id: user.id, email: user.email, username: user.username });
+
+    return {
+      token,
+      refreshToken,
+      tokenExpires,
+    };
   }
 
   private async getTokensData(data: {

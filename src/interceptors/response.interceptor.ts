@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 import { RESPONSE_MESSAGE_METADATA } from 'src/decorators/response-message.decorator';
 
 export interface Response<T> {
-  statusCode: number;
+  code: number;
   message: string;
   data?: T;
 }
@@ -34,7 +34,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
       .handle()
       .pipe(
         map((data) => ({
-          statusCode: context.switchToHttp().getResponse().statusCode,
+          code: context.switchToHttp().getResponse().statusCode,
           success: true,
           message: message,
           data: data,

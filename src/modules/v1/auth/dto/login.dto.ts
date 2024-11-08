@@ -4,7 +4,7 @@ import { IsEmail, IsNotEmpty, IsOptional, MinLength } from "class-validator";
 import { lowerCaseTransformer } from "src/utils/lower-case.transformer";
 
 export class LoginDto {
-  @ApiProperty({ example: 'Lq5kA@example.com / kamilmysliwiec' })
+  @ApiProperty({ example: 'kamilmysliwiecasd' })
   @Transform(lowerCaseTransformer)
   @IsNotEmpty()
   uname: string;
