@@ -8,6 +8,8 @@ import { ApiBearerAuth, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { NullableType } from 'src/utils/types/nullable.type';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateProfileDto } from '../dto/create-profile.dto';
+import { ProfileDomain } from '../domain/profile.domain';
 
 @Controller({ version: '1', path: 'user' })
 export class UserController {
@@ -46,5 +48,31 @@ export class UserController {
 
     const { password, ...res } = user;
     return res;
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOkResponse({
+    type: CreateProfileDto,
+  })
+  @Post('create-profile')
+  @ResponseMessage('Success create profile')
+  async profileCreate(@Request() request: any, @Body() body: CreateProfileDto): Promise<CreateProfileDto> {
+    const { id } = request.user;
+    return await this.userService.createProfile(+id, body);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: CreateProfileDto,
+  })
+  @Patch('update-profile')
+  @ResponseMessage('Success update profile')
+  async profileUpdate(@Request() request: any, @Body() body: CreateProfileDto): Promise<CreateProfileDto> {
+    const { id } = request.user;
+    return await this.userService.updateProfile(+id, body);
   }
 }
