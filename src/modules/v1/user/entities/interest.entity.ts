@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { ProfileEntity } from "./profile.entity";
+import { UserEntity } from "./user.entity";
 
 @Entity('user_interests')
 export class InterestEntity {
@@ -14,11 +14,11 @@ export class InterestEntity {
   })
   id: number;
 
-  @ManyToOne(() => ProfileEntity, (profile) => profile.id, {
+  @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE'
   })
-  @JoinColumn({  name: "profile_id" })
-  profile: ProfileEntity[]
+  @JoinColumn({  name: "user_id" })
+  user: UserEntity
 
   @Column({
     type: 'varchar',

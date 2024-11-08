@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProfileEntity } from "./profile.entity";
+import { UserEntity } from "./user.entity";
 
 @Entity('user_images')
 export class ImageProfileEntity {
@@ -38,9 +39,9 @@ export class ImageProfileEntity {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => ProfileEntity, (profile) => profile.id, {
+  @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE'
   })
-  @JoinColumn({  name: "profile_id" })
-  profileId: ProfileEntity[]
+  @JoinColumn({  name: "user_id" })
+  userId: UserEntity[]
 }

@@ -92,6 +92,6 @@ export class ProfileEntity {
   @JoinColumn({  name: "user_id" })
   user: UserEntity;
 
-  @OneToMany(() => ImageProfileEntity, (image) => image.profileId)
+  @OneToMany(() => ImageProfileEntity, (image) => image.userId)
   images: ImageProfileEntity[]
 }

@@ -10,6 +10,7 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { ProfileDomain } from '../domain/profile.domain';
+import { UserInterestsDto } from '../dto/user-interests.dto';
 
 @Controller({ version: '1', path: 'user' })
 export class UserController {
@@ -74,5 +75,18 @@ export class UserController {
   async profileUpdate(@Request() request: any, @Body() body: CreateProfileDto): Promise<CreateProfileDto> {
     const { id } = request.user;
     return await this.userService.updateProfile(+id, body);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: UserInterestsDto,
+  })
+  @Post('interests')
+  @ResponseMessage('Success update profile')
+  async saveInterests(@Request() request: any, @Body() body: UserInterestsDto): Promise<any> {    
+    const { id } = request.user;
+    return await this.userService.storeInterests(+id, body);
   }
 }

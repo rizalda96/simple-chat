@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProfileEntity } from "./profile.entity";
+import { InterestEntity } from "./interest.entity";
 
 @Entity('users')
 export class UserEntity {
@@ -81,4 +82,7 @@ export class UserEntity {
 
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
+
+  @OneToMany(() => InterestEntity, (interest) => interest.user)
+  interest: InterestEntity;
 }

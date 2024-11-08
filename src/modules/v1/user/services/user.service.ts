@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, UnprocessableEntityException } from '@ne
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { LoginResponseDto } from '../../auth/dto/login-response.dto';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +12,9 @@ import { ProfileEntity } from '../entities/profile.entity';
 import { NullableType } from 'src/utils/types/nullable.type';
 import { ProfileDomain } from '../domain/profile.domain';
 import { ZODIAC, ZodiacType } from 'src/constant/zodiac';
+import { UserInterestsDto } from '../dto/user-interests.dto';
+import { InterestEntity } from '../entities/interest.entity';
+import { difference } from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -20,7 +23,10 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     
     @InjectRepository(ProfileEntity)
-    private readonly profileRepository: Repository<ProfileEntity>
+    private readonly profileRepository: Repository<ProfileEntity>,
+    
+    @InjectRepository(InterestEntity)
+    private readonly interestRepository: Repository<InterestEntity>
   ) {}
 
   async findOneUser(field: string, identifier: string) : Promise<UserEntity> {        
@@ -118,5 +124,37 @@ export class UserService {
     const monthDay = date.split('-').filter(el => el.length < 3).join('-');
     
     return ZODIAC.find(el => el.monthDayStart <= monthDay && el.monthDayEnd >= monthDay);
+  }
+
+  async storeInterests(id: number, request: UserInterestsDto) : Promise<UserInterestsDto> {
+    const { interests } = request;
+
+    const userInterests = await this.interestRepository.find({
+      where: {
+        user: {
+          id
+        }
+      }
+    });
+    const oldInterests = userInterests.map(el => el.name);
+
+    const interestsToAdd = difference(interests, oldInterests);
+    const interestsToRemove = difference(oldInterests, interests);
+    
+    if (interestsToAdd.length > 0) {
+      const interestEntities = interestsToAdd.map(name => {
+        return {
+          user: { id },
+          name,
+        }
+      });
+
+      await this.interestRepository.save(interestEntities);
+    }
+
+    if (interestsToRemove.length > 0) {
+      await this.interestRepository.delete({ user: { id }, name: In(interestsToRemove) });
+    }
+    return request;
   }
 }
