@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProfileEntity } from "./profile.entity";
 import { InterestEntity } from "./interest.entity";
+import { ImageProfileEntity } from "./image-profile.entity";
 
 @Entity('users')
 export class UserEntity {
@@ -85,4 +86,7 @@ export class UserEntity {
 
   @OneToMany(() => InterestEntity, (interest) => interest.user)
   interest: InterestEntity;
+
+  @OneToMany(() => ImageProfileEntity, (image) => image.userId)
+  imageProfile: ImageProfileEntity;
 }

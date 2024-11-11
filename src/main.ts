@@ -29,6 +29,9 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true, // <- This line here
+      },
       whitelist: true,
       forbidNonWhitelisted: true,
       exceptionFactory: (validationErrors: ValidationError[]) => new DtoValidationError(validationErrors),

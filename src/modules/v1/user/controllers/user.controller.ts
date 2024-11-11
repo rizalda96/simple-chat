@@ -1,16 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserService } from '../services/user.service';
 import { UserEntity } from '../entities/user.entity';
 import { UserDomain } from '../domain/user.domain';
-import { ApiBearerAuth, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { NullableType } from 'src/utils/types/nullable.type';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { ProfileDomain } from '../domain/profile.domain';
 import { UserInterestsDto } from '../dto/user-interests.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller({ version: '1', path: 'user' })
 export class UserController {
@@ -57,11 +58,13 @@ export class UserController {
   @ApiOkResponse({
     type: CreateProfileDto,
   })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('images'))
   @Post('create-profile')
   @ResponseMessage('Success create profile')
-  async profileCreate(@Request() request: any, @Body() body: CreateProfileDto): Promise<CreateProfileDto> {
+  async profileCreate(@Request() request: any, @Body() body: CreateProfileDto, @UploadedFiles() images: Array<Express.Multer.File>): Promise<CreateProfileDto> {
     const { id } = request.user;
-    return await this.userService.createProfile(+id, body);
+    return await this.userService.createProfile(+id, body, images);
   }
 
   @ApiBearerAuth()
@@ -70,11 +73,13 @@ export class UserController {
   @ApiOkResponse({
     type: CreateProfileDto,
   })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('images'))
   @Patch('update-profile')
   @ResponseMessage('Success update profile')
-  async profileUpdate(@Request() request: any, @Body() body: CreateProfileDto): Promise<CreateProfileDto> {
+  async profileUpdate(@Request() request: any, @Body() body: CreateProfileDto, @UploadedFiles() images: Array<Express.Multer.File>): Promise<CreateProfileDto> {
     const { id } = request.user;
-    return await this.userService.updateProfile(+id, body);
+    return await this.userService.updateProfile(+id, body, images);
   }
 
   @ApiBearerAuth()

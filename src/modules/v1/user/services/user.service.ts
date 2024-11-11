@@ -15,6 +15,7 @@ import { ZODIAC, ZodiacType } from 'src/constant/zodiac';
 import { UserInterestsDto } from '../dto/user-interests.dto';
 import { InterestEntity } from '../entities/interest.entity';
 import { difference } from 'lodash';
+import { ImageProfileEntity } from '../entities/image-profile.entity';
 
 @Injectable()
 export class UserService {
@@ -26,30 +27,40 @@ export class UserService {
     private readonly profileRepository: Repository<ProfileEntity>,
     
     @InjectRepository(InterestEntity)
-    private readonly interestRepository: Repository<InterestEntity>
+    private readonly interestRepository: Repository<InterestEntity>,
+    
+    @InjectRepository(ImageProfileEntity)
+    private readonly imageProfileRepository: Repository<ImageProfileEntity>
   ) {}
 
   async findOneUser(field: string, identifier: string) : Promise<UserEntity> {        
     const user = await this.userRepository.findOne({
-      // select: {
-      //   id: true,
-      //   username: true,
-      //   email: true,
-      //   isActive: true,
-      //   // profile: {
-      //   //   fullname: true,
-      //   //   gender: true,
-      //   //   birthDay: true,
-      //   //   holoscope: true,
-      //   //   zodiac: true,
-      //   //   heigth: true,
-      //   //   weight: true,
-      //   // }
-      // },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        email: true,
+        isActive: true,
+        profile: {
+          fullname: true,
+          gender: true,
+          birthDay: true,
+          holoscope: true,
+          zodiac: true,
+          height: true,
+          weight: true,
+        },
+        interest: {
+          name: true
+        },
+        imageProfile: {
+          urlImage: true
+        }
+      },
       where: {
         [field]: identifier
       },
-      // relations: ['profile', 'profile.images']
+      relations: ['profile', 'interest', 'imageProfile']
     });
     
     if (!user) throw new NotFoundException('User not found');
@@ -78,12 +89,15 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async updateUser(id: number, user: UpdateUserDto) : Promise<UserEntity> {
-    await this.findOneUser('id', id.toString());
-    return this.userRepository.save(user);
+  async updateUser(id: number, user: UpdateUserDto) : Promise<any> {
+    const userEntity = await this.userRepository.create({
+      lastLogin: user.lastLogin,
+      updatedAt: user.updatedAt
+    })
+    return this.userRepository.update(id, userEntity);
   }
 
-  async createProfile(id: number, request: CreateProfileDto) : Promise<CreateProfileDto> {
+  async createProfile(id: number, request: CreateProfileDto, images: Array<Express.Multer.File>) : Promise<CreateProfileDto> {
     const isExisting = await this.profileRepository.findOne({
       where: {
         user: {
@@ -92,6 +106,20 @@ export class UserService {
       }
     })
     if (isExisting) throw new UnprocessableEntityException('Profile already exists, please update it');
+
+    if (images.length > 0) {
+      const imageEntities = await this.imageProfileRepository.create(
+        images.map(image => {
+          return { 
+            userId: { id },
+            urlImage: image.path
+          }
+        })
+      );
+
+      await this.imageProfileRepository.save(imageEntities);
+    }
+    
 
     // set zodiac by date of birth
     if (request.birthDay) {
@@ -105,7 +133,23 @@ export class UserService {
     return request;
   }
 
-  async updateProfile(id: number, request: CreateProfileDto) : Promise<CreateProfileDto> {    
+  async updateProfile(id: number, request: CreateProfileDto, images: Array<Express.Multer.File>) : Promise<CreateProfileDto> {
+    if (images.length > 0) {
+      // remove old images
+      await this.imageProfileRepository.delete({ userId: { id } });
+
+      const imageEntities = await this.imageProfileRepository.create(
+        images.map(image => {
+          return { 
+            userId: { id },
+            urlImage: image.path
+          }
+        })
+      );
+
+      await this.imageProfileRepository.save(imageEntities);
+    }
+
     // set zodiac by date of birth
     if (request.birthDay) {
       const zodiac = await this.getZodiac(request.birthDay);      

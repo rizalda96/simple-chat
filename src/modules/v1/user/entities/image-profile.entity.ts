@@ -43,5 +43,5 @@ export class ImageProfileEntity {
     onDelete: 'CASCADE'
   })
   @JoinColumn({  name: "user_id" })
-  userId: UserEntity[]
+  userId: UserEntity
 }

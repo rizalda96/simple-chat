@@ -41,4 +41,18 @@ export class CreateProfileDto {
   @IsOptional()
   @IsString()
   zodiac: string;
+
+  @ApiProperty({
+    description: 'Attachments',
+    type: 'array',
+    items: {
+      type: 'file',
+      items: {
+        type: 'string',
+        format: 'binary',
+      },
+    },
+  })
+  @IsOptional()
+  images: any[];
 }

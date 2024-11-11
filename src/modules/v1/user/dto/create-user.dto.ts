@@ -24,4 +24,10 @@ export class CreateUserDto {
 
   @IsOptional()
   lastLogin?: Date | null;
+
+  @IsOptional()
+  createdAt?: Date | null;
+
+  @IsOptional()
+  updatedAt?: Date | null;
 }
