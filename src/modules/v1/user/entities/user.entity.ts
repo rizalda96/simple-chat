@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToMany, OneToOn
 import { ProfileEntity } from "./profile.entity";
 import { InterestEntity } from "./interest.entity";
 import { ImageProfileEntity } from "./image-profile.entity";
+import { ChatMessageEntity } from "../../chat/entities/chat.entity";
 
 @Entity('users')
 export class UserEntity {
@@ -89,4 +90,10 @@ export class UserEntity {
 
   @OneToMany(() => ImageProfileEntity, (image) => image.userId)
   imageProfile: ImageProfileEntity;
+
+  @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.fromUser)
+  chatMessagesSent: ChatMessageEntity[];
+
+  @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.toUser)
+  chatMessagesReceived: ChatMessageEntity[];
 }
